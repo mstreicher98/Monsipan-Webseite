@@ -16,7 +16,7 @@ Benötigt Node.js 22.12 oder neuer.
 
 ## Hosting
 
-Die Seite läuft auf zwei Arten.
+Die Seite läuft auf drei Arten. Empfohlen ist **C) Portainer mit Cloudflare Tunnel**.
 
 ### A) Klassischer Webspace (z. B. World4You, easyname, Hetzner Webhosting)
 
@@ -49,6 +49,30 @@ Die Seite ist danach unter `http://<server>:8080` erreichbar. Das Image baut die
 
 Umgebungsvariablen: `MAIL_TO`, `MAIL_FROM`, `MAIL_FROM_NAME`, `SMTP_HOST`, `SMTP_PORT` (Standard 587), `SMTP_SECURE` (`tls` oder `ssl`), `SMTP_USER`, `SMTP_PASS`, `RATE_LIMIT` (Anfragen pro IP und Stunde, Standard 5).
 
+### C) Portainer-Stack mit Cloudflare Tunnel (empfohlen)
+
+Bei jedem Push auf `main` baut GitHub Actions (`.github/workflows/docker.yml`) das fertige Image
+`ghcr.io/mstreicher98/monsipan-webseite:latest` für amd64 und arm64. Portainer lädt nur noch dieses Image herunter.
+
+**Einmalig einrichten**
+
+1. Nach dem ersten erfolgreichen Workflow-Lauf auf GitHub unter *Profil → Packages → monsipan-webseite → Package settings* die Sichtbarkeit auf **Public** stellen. Alternativ in Portainer unter *Registries* ghcr.io mit einem GitHub-Token (Recht `read:packages`) hinterlegen.
+2. In Cloudflare unter *Zero Trust → Networks → Tunnels* einen Tunnel anlegen, falls noch keiner läuft, und bei *Public Hostname* eintragen:
+   - `monsipan.at`, Typ HTTP, Ziel `<IP des Servers>:8080` (cloudflared läuft bereits am Server) **oder** `web:80` (cloudflared aus dem Stack, siehe Variante B in `portainer-stack.yml`)
+   - dasselbe für `www.monsipan.at` – die Seite leitet www automatisch auf die Adresse ohne www um
+3. In Portainer *Stacks → Add stack → Web editor* den Inhalt von `portainer-stack.yml` einfügen und die Umgebungsvariablen setzen (mindestens `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`).
+4. *Deploy the stack*. Danach über die Domain ein Test-Formular absenden.
+
+**Neue Version einspielen:** Nach dem Push warten, bis der Workflow grün ist. Dann in Portainer den Stack öffnen und *Editor → Update the stack* mit **Re-pull image and redeploy** ausführen. Bei Portainer Business kann das ein Stack-Webhook übernehmen: URL als Secret `PORTAINER_WEBHOOK_URL` im GitHub-Repo hinterlegen.
+
+**Hinweise zu Cloudflare**
+
+- Unter *SSL/TLS → Edge Certificates* „Always Use HTTPS“ und HSTS aktivieren. Die Verbindung zwischen Cloudflare und Server läuft verschlüsselt durch den Tunnel.
+- *Rocket Loader* ausschalten; er verändert das JavaScript und ist hier überflüssig.
+- Den Port 8080 im Router **nicht** freigeben – der Zugang läuft nur über den Tunnel.
+- Der Container übernimmt die echte Besucher-IP aus `CF-Connecting-IP` (`docker/apache-monsipan.conf`). Das braucht der Spamschutz des Kontaktformulars, sonst würden alle Besucher gemeinsam gezählt.
+- Die Datenschutzerklärung nennt Cloudflare bereits als Auftragsverarbeiter. Den Auftragsverarbeitungsvertrag (DPA) im Cloudflare-Dashboard akzeptieren.
+
 ## Inhalte pflegen
 
 | Was | Wo |
@@ -75,6 +99,6 @@ Neue Fotos vor dem Einchecken verkleinern: `npm run optimize-images` begrenzt al
 
 - [ ] SMTP-Zugang für das Kontaktformular eintragen und einen Testversand machen
 - [ ] Impressum prüfen: Gewerbewortlaut, Gewerbebehörde und Kammerzugehörigkeit bestätigen
-- [ ] Datenschutzerklärung um den Namen des Hosting-Anbieters ergänzen
+- [ ] GHCR-Paket auf Public stellen (oder Registry-Zugang in Portainer hinterlegen)
 - [ ] Team: Vorname von Herrn Dittrich klären (alte Seite: „Andreas“, Fotodatei: „Alexander“); Foto von Roland Krammer liegt vor, er steht aber nicht auf der Teamliste
 - [ ] Neue, einheitliche Teamfotos und aktuelle Projektfotos, sobald vorhanden

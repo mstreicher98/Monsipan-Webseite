@@ -1,0 +1,50 @@
+# Webseite Monsipan Bautenschutz – Stack für Portainer mit Cloudflare Tunnel
+#
+# Portainer → Stacks → Add stack → Web editor: diesen Inhalt einfügen, darunter bei
+# „Environment variables“ setzen:
+#   SMTP_HOST, SMTP_USER, SMTP_PASS   Zugang des E-Mail-Postfachs für das Kontaktformular
+#   SMTP_PORT, SMTP_SECURE            optional, Standard 587 / tls (für Port 465: ssl)
+#   MAIL_TO                           optional, Empfänger (Standard office@monsipan.com)
+#   MAIL_FROM                         optional, Absender (Standard webseite@monsipan.at) –
+#                                     muss zum SMTP-Konto passen
+#   WEB_PORT                          optional, Port am Server (Standard 8080, nur Variante A)
+#   TUNNEL_TOKEN                      nur Variante B
+#
+# HTTPS übernimmt Cloudflare. Im Cloudflare-Dashboard unter Zero Trust → Networks → Tunnels
+# → Public Hostname die Domain (monsipan.at und www.monsipan.at) auf die Webseite zeigen lassen, Typ HTTP:
+#   Variante A – cloudflared läuft schon am Server:  <IP des Servers>:8080
+#   Variante B – cloudflared aus diesem Stack (unten einkommentieren):  web:80
+#
+# Neue Version einspielen: Stack → Editor → „Update the stack“ mit „Re-pull image and redeploy“.
+
+services:
+  web:
+    image: ghcr.io/mstreicher98/monsipan-webseite:latest
+    restart: unless-stopped
+    environment:
+      MAIL_TO: ${MAIL_TO:-office@monsipan.com}
+      MAIL_FROM: ${MAIL_FROM:-webseite@monsipan.at}
+      MAIL_FROM_NAME: Webseite monsipan.at
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-tls}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      RATE_LIMIT: 5
+    # Für Variante A: cloudflared erreicht die Seite über diesen Port.
+    # Den Port im Router nicht nach außen freigeben – der Zugang läuft nur über den Tunnel.
+    ports:
+      - '${WEB_PORT:-8080}:80'
+
+  # Variante B: Tunnel direkt in diesem Stack. Zum Aktivieren die Zeilen unten einkommentieren
+  # und TUNNEL_TOKEN setzen (Zero Trust → Networks → Tunnels → Create a tunnel → Token kopieren).
+  # Die Zeilen „ports“ oben können dann entfallen.
+  #
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   restart: unless-stopped
+  #   command: tunnel --no-autoupdate run
+  #   environment:
+  #     TUNNEL_TOKEN: ${TUNNEL_TOKEN}
+  #   depends_on:
+  #     - web

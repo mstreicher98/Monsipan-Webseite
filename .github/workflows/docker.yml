@@ -1,0 +1,73 @@
+name: Image bauen
+
+# Bei jedem Push auf main wird die Seite gebaut und als Docker-Image nach
+# GitHub Container Registry geschoben: ghcr.io/mstreicher98/monsipan-webseite:latest
+#
+# Optional: automatisch in Portainer neu ausrollen. Dazu im Stack den Webhook aktivieren
+# (Portainer Business) und die URL als Secret PORTAINER_WEBHOOK_URL hinterlegen.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  image:
+    name: Image bauen
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+
+      # GHCR verlangt Kleinbuchstaben im Image-Namen
+      - name: Image-Name bestimmen
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,format=short
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          # arm64 zusätzlich, damit das Image auch auf ARM-Servern und Raspberry Pi läuft
+          platforms: linux/amd64,linux/arm64
+          # Pull Requests nur bauen, nicht veröffentlichen
+          push: ${{ github.event_name != 'pull_request' }}
+          provenance: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Portainer benachrichtigen
+        if: github.event_name != 'pull_request'
+        env:
+          HOOK: ${{ secrets.PORTAINER_WEBHOOK_URL }}
+        run: |
+          if [ -n "$HOOK" ]; then
+            curl -fsS -X POST "$HOOK" && echo "Portainer-Webhook ausgelöst" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Image -> ${IMAGE}:latest (kein Portainer-Webhook hinterlegt)" >> "$GITHUB_STEP_SUMMARY"
+          fi
