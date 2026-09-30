@@ -1,6 +1,6 @@
 # 1) Statische Seite bauen – läuft immer auf der Plattform des Build-Rechners,
 #    das Ergebnis (HTML, CSS, Bilder) ist plattformunabhängig
-FROM --platform=$BUILDPLATFORM node:22-alpine AS build
+FROM --platform=$BUILDPLATFORM node:24-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
