@@ -30,7 +30,7 @@
   --radius: 4px;
   --slant: polygon(0.6em 0, 100% 0, calc(100% - 0.6em) 100%, 0 100%);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --header-h: 4.5rem;
+  --header-h: 5.25rem;
 
   color-scheme: light;
 }

@@ -9,7 +9,7 @@ const isActive = (href: string) => path === href || (href !== '/' && path.starts
 <header class="site-header" data-header>
   <div class="wrap site-header__inner">
     <a class="brand" href="/" aria-label="Monsipan – zur Startseite">
-      <img src={logo} alt="Monsipan" width="168" height="30" />
+      <img src={logo} alt="Monsipan" width="224" height="40" />
     </a>
 
     <nav class="nav" aria-label="Hauptnavigation">
@@ -52,15 +52,21 @@ const isActive = (href: string) => path === href || (href !== '/' && path.starts
     top: 0;
     z-index: 50;
     height: var(--header-h);
-    background: color-mix(in srgb, var(--paper) 88%, transparent);
-    backdrop-filter: saturate(1.4) blur(12px);
-    -webkit-backdrop-filter: saturate(1.4) blur(12px);
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.3s;
+    background: color-mix(in srgb, var(--asphalt) 94%, transparent);
+    backdrop-filter: saturate(1.2) blur(12px);
+    -webkit-backdrop-filter: saturate(1.2) blur(12px);
+    color: var(--white);
+    /* gelbe Randlinie als Abschluss nach unten */
+    border-bottom: 3px solid var(--signal);
+    transition: box-shadow 0.3s;
   }
 
   .site-header.is-scrolled {
-    border-bottom-color: var(--line);
+    box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.45);
+  }
+
+  .site-header :focus-visible {
+    outline-color: var(--white);
   }
 
   .site-header__inner {
@@ -76,7 +82,7 @@ const isActive = (href: string) => path === href || (href !== '/' && path.starts
   }
 
   .brand img {
-    width: clamp(132px, 14vw, 168px);
+    width: clamp(168px, 17vw, 224px);
     height: auto;
   }
 
@@ -94,6 +100,13 @@ const isActive = (href: string) => path === href || (href !== '/' && path.starts
     padding: 0.4rem 0;
     font-weight: 650;
     text-decoration: none;
+    color: #e6e7e6;
+    transition: color 0.2s;
+  }
+
+  .nav__list a:hover,
+  .nav__list a[aria-current='page'] {
+    color: var(--white);
   }
 
   /* aktiver Punkt: eine kurze gelbe Markierung unter dem Wort */
@@ -149,7 +162,7 @@ const isActive = (href: string) => path === href || (href !== '/' && path.starts
       border: 0;
       background: none;
       cursor: pointer;
-      color: var(--ink);
+      color: var(--white);
     }
 
     .menu-toggle__bars,
@@ -205,6 +218,7 @@ const isActive = (href: string) => path === href || (href !== '/' && path.starts
       gap: 0;
       padding: 1.5rem var(--gutter) 2rem;
       background: var(--paper);
+      color: var(--ink);
       visibility: hidden;
       opacity: 0;
       transform: translateY(-0.75rem);
@@ -230,6 +244,7 @@ const isActive = (href: string) => path === href || (href !== '/' && path.starts
     .nav__list a {
       padding: 1rem 0;
       font-size: var(--step-3);
+      color: var(--ink);
       font-style: italic;
       font-weight: 800;
       letter-spacing: -0.03em;
@@ -239,6 +254,11 @@ const isActive = (href: string) => path === href || (href !== '/' && path.starts
       bottom: 0.9rem;
       right: auto;
       width: 3rem;
+    }
+
+    .nav__list a:hover,
+    .nav__list a[aria-current='page'] {
+      color: var(--ink);
     }
 
     .nav__phone-mobile {
