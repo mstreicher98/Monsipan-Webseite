@@ -56,7 +56,7 @@ Bei jedem Push auf `main` baut GitHub Actions (`.github/workflows/docker.yml`) d
 
 **Einmalig einrichten**
 
-1. Nach dem ersten erfolgreichen Workflow-Lauf auf GitHub unter *Profil → Packages → monsipan-webseite → Package settings* die Sichtbarkeit auf **Public** stellen. Alternativ in Portainer unter *Registries* ghcr.io mit einem GitHub-Token (Recht `read:packages`) hinterlegen.
+1. Das Image ist öffentlich (das Repository ist public), Portainer braucht daher keinen Registry-Zugang. Wird das Repository privat, in Portainer unter *Registries* ghcr.io mit einem GitHub-Token (Recht `read:packages`) hinterlegen.
 2. In Cloudflare unter *Zero Trust → Networks → Tunnels* einen Tunnel anlegen, falls noch keiner läuft, und bei *Public Hostname* eintragen:
    - `monsipan.at`, Typ HTTP, Ziel `<IP des Servers>:8080` (cloudflared läuft bereits am Server) **oder** `web:80` (cloudflared aus dem Stack, siehe Variante B in `portainer-stack.yml`)
    - dasselbe für `www.monsipan.at` – die Seite leitet www automatisch auf die Adresse ohne www um
@@ -99,6 +99,6 @@ Neue Fotos vor dem Einchecken verkleinern: `npm run optimize-images` begrenzt al
 
 - [ ] SMTP-Zugang für das Kontaktformular eintragen und einen Testversand machen
 - [ ] Impressum prüfen: Gewerbewortlaut, Gewerbebehörde und Kammerzugehörigkeit bestätigen
-- [ ] GHCR-Paket auf Public stellen (oder Registry-Zugang in Portainer hinterlegen)
+- [ ] Portainer-Stack anlegen, Tunnel-Hostnames eintragen, Test-Anfrage senden
 - [ ] Team: Vorname von Herrn Dittrich klären (alte Seite: „Andreas“, Fotodatei: „Alexander“); Foto von Roland Krammer liegt vor, er steht aber nicht auf der Teamliste
 - [ ] Neue, einheitliche Teamfotos und aktuelle Projektfotos, sobald vorhanden
