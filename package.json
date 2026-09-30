@@ -1,0 +1,23 @@
+{
+  "name": "monsipan-webseite",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build && node scripts/prune-dist.mjs",
+    "preview": "astro preview",
+    "optimize-images": "node scripts/optimize-sources.cjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/overpass": "^5.3.0",
+    "astro": "^7.3.5",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "potrace": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

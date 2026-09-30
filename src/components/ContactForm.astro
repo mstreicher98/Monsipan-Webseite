@@ -1,0 +1,269 @@
+---
+import { leistungen } from '../data/leistungen';
+import { company } from '../data/site';
+---
+
+<form class="form" action="/kontakt.php" method="post" data-contact novalidate>
+  <div class="form__grid">
+    <div class="field">
+      <label for="cf-name">Name <span aria-hidden="true">*</span></label>
+      <input id="cf-name" name="name" type="text" autocomplete="name" required maxlength="120" />
+    </div>
+    <div class="field">
+      <label for="cf-company">Firma / Gemeinde</label>
+      <input id="cf-company" name="company" type="text" autocomplete="organization" maxlength="160" />
+    </div>
+    <div class="field">
+      <label for="cf-email">E-Mail <span aria-hidden="true">*</span></label>
+      <input id="cf-email" name="email" type="email" autocomplete="email" required maxlength="160" />
+    </div>
+    <div class="field">
+      <label for="cf-phone">Telefon</label>
+      <input id="cf-phone" name="phone" type="tel" autocomplete="tel" maxlength="60" />
+    </div>
+    <div class="field field--full">
+      <label for="cf-topic">Worum geht es?</label>
+      <div class="select">
+        <select id="cf-topic" name="topic">
+          <option value="">Bitte wählen (optional)</option>
+          {leistungen.map((l) => <option>{l.title}</option>)}
+          <option>Bewerbung</option>
+          <option>Sonstiges</option>
+        </select>
+      </div>
+    </div>
+    <div class="field field--full">
+      <label for="cf-message">Ihre Nachricht <span aria-hidden="true">*</span></label>
+      <textarea id="cf-message" name="message" rows="6" required maxlength="5000"
+      ></textarea>
+    </div>
+
+    <div class="hp" aria-hidden="true">
+      <label for="cf-website">Website</label>
+      <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+    <input type="hidden" name="t" value="" data-ts />
+
+    <label class="check field--full">
+      <input type="checkbox" name="privacy" value="1" required />
+      <span>
+        Ich habe die <a href="/datenschutzerklaerung/" target="_blank">Datenschutzerklärung</a> gelesen und bin einverstanden,
+        dass meine Angaben zur Bearbeitung der Anfrage verwendet werden. <span aria-hidden="true">*</span>
+      </span>
+    </label>
+  </div>
+
+  <div class="form__foot">
+    <button class="btn" type="submit" data-submit>
+      <span data-submit-label>Anfrage senden</span>
+    </button>
+    <p class="form__hint">* Pflichtfelder</p>
+  </div>
+
+  <p class="form__status" role="status" aria-live="polite" data-status></p>
+</form>
+
+<script define:vars={{ email: company.email }}>
+  document.querySelectorAll('[data-contact]').forEach((form) => {
+    const ts = form.querySelector('[data-ts]');
+    if (ts) ts.value = String(Date.now());
+    const thema = new URLSearchParams(location.search).get('thema');
+    const topic = form.querySelector('select[name=topic]');
+    if (thema && topic && [...topic.options].some((o) => o.value === thema)) topic.value = thema;
+    const status = form.querySelector('[data-status]');
+    const btn = form.querySelector('[data-submit]');
+    const label = form.querySelector('[data-submit-label]');
+
+    const setStatus = (type, text) => {
+      status.dataset.type = type;
+      status.textContent = text;
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      form.classList.add('was-validated');
+      if (!form.checkValidity()) {
+        const first = form.querySelector(':invalid');
+        first?.focus();
+        setStatus('error', 'Bitte füllen Sie die markierten Felder aus und bestätigen Sie die Datenschutzerklärung.');
+        return;
+      }
+      btn.disabled = true;
+      label.textContent = 'Wird gesendet …';
+      setStatus('', '');
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error(data.message || 'send');
+        form.reset();
+        form.classList.remove('was-validated');
+        if (ts) ts.value = String(Date.now());
+        setStatus('ok', 'Danke! Ihre Anfrage ist bei uns angekommen. Wir melden uns in Kürze.');
+      } catch (err) {
+        const msg = err instanceof Error && err.message !== 'send' && err.message !== 'Failed to fetch' ? err.message : '';
+        setStatus(
+          'error',
+          (msg ? msg + ' ' : 'Die Anfrage konnte nicht gesendet werden. ') +
+            'Sie erreichen uns auch direkt unter ' + email + '.',
+        );
+      } finally {
+        btn.disabled = false;
+        label.textContent = 'Anfrage senden';
+      }
+    });
+  });
+</script>
+
+<style>
+  .form__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.1rem 1.25rem;
+  }
+
+  .field {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .field--full {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    font-weight: 650;
+    font-size: var(--step--1);
+  }
+
+  input[type='text'],
+  input[type='email'],
+  input[type='tel'],
+  select,
+  textarea {
+    width: 100%;
+    font: inherit;
+    color: var(--ink);
+    background: var(--white);
+    border: 1.5px solid var(--line);
+    border-bottom: 2px solid var(--asphalt);
+    border-radius: 0;
+    padding: 0.8rem 0.9rem 0.7rem;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+    appearance: none;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 9rem;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--asphalt);
+    box-shadow: inset 0 -4px 0 var(--signal);
+  }
+
+  .was-validated :invalid {
+    border-color: #c0321f;
+  }
+
+  .select {
+    position: relative;
+  }
+
+  .select::after {
+    content: '';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-right: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+  }
+
+  .check {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem;
+    align-items: start;
+    font-weight: 400;
+    color: var(--grey);
+    cursor: pointer;
+  }
+
+  .check input {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.15rem;
+    accent-color: var(--asphalt);
+  }
+
+  .was-validated .check input:invalid {
+    outline: 2px solid #c0321f;
+    outline-offset: 2px;
+  }
+
+  .hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .form__foot {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .form__hint {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--grey);
+  }
+
+  .btn[disabled] {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  .form__status {
+    margin: 1.25rem 0 0;
+    font-weight: 600;
+  }
+
+  .form__status:empty {
+    display: none;
+  }
+
+  .form__status[data-type='ok'] {
+    padding: 1rem 1.2rem;
+    background: var(--signal);
+  }
+
+  .form__status[data-type='error'] {
+    padding: 1rem 1.2rem;
+    background: #fbe7e3;
+    color: #8a2415;
+  }
+
+  @media (max-width: 40rem) {
+    .form__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

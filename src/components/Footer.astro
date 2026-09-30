@@ -1,0 +1,193 @@
+---
+import logo from '../assets/logo.svg?url';
+import { company, nav } from '../data/site';
+import { leistungen } from '../data/leistungen';
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="road" aria-hidden="true"><span></span></div>
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <img src={logo} alt="Monsipan" width="200" height="36" loading="lazy" />
+      <p>Bodenmarkierungen und Beschichtungen aus Schwechat – seit {company.founded}.</p>
+    </div>
+
+    <div>
+      <h2 class="footer-h">Kontakt</h2>
+      <address>
+        {company.name}<br />
+        {company.street}<br />
+        {company.zip} {company.city}
+      </address>
+      <p>
+        <a href={company.phoneHref}>{company.phone}</a><br />
+        <a href={`mailto:${company.email}`}>{company.email}</a>
+      </p>
+      <p class="footer-dim">{company.hours}</p>
+    </div>
+
+    <div>
+      <h2 class="footer-h">Leistungen</h2>
+      <ul>
+        {
+          leistungen.map((l) => (
+            <li>
+              <a href={`/projekte/${l.slug}/`}>{l.title}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="footer-h">Unternehmen</h2>
+      <ul>
+        {
+          nav.map((n) => (
+            <li>
+              <a href={n.href}>{n.label}</a>
+            </li>
+          ))
+        }
+        <li><a href="/impressum/">Impressum</a></li>
+        <li><a href="/datenschutzerklaerung/">Datenschutz</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    <span>© {year} {company.legalName}</span>
+    <span>{company.fn}, {company.court}</span>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    background: var(--asphalt);
+    color: #d9dbd9;
+    padding-bottom: 2rem;
+    font-size: var(--step--1);
+    line-height: 1.7;
+  }
+
+  /* Fahrbahnrand: durchgezogene Randlinie + Leitlinie */
+  .road {
+    height: 4.5rem;
+    position: relative;
+  }
+
+  /* durchgezogene Randlinie */
+  .road::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 1rem;
+    height: 5px;
+    background: #eceae4;
+  }
+
+  .road span {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 2.9rem;
+    height: 5px;
+    background: repeating-linear-gradient(90deg, #f2f2f2 0 3rem, transparent 3rem 6rem);
+    opacity: 0.9;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: scroll()) {
+      .road span {
+        animation: footer-roll linear both;
+        animation-timeline: view();
+        animation-range: entry 0% exit 100%;
+      }
+    }
+  }
+
+  @keyframes footer-roll {
+    to {
+      background-position: -18rem 0;
+    }
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1.2fr 1fr 0.8fr;
+    gap: 2.5rem;
+    padding-top: 2.5rem;
+    padding-bottom: 3rem;
+  }
+
+  .footer-brand img {
+    width: 200px;
+    margin-bottom: 1.25rem;
+  }
+
+  .footer-brand p {
+    max-width: 22em;
+    font-size: var(--step-0);
+    color: var(--white);
+  }
+
+  .footer-h {
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--signal);
+    margin-bottom: 0.9rem;
+    letter-spacing: 0;
+  }
+
+  address {
+    font-style: normal;
+    margin-bottom: 1em;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--white);
+    text-decoration: underline;
+  }
+
+  .footer-dim {
+    color: #9da0a2;
+  }
+
+  .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--asphalt-2);
+    color: #9da0a2;
+  }
+
+  @media (max-width: 60rem) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .footer-brand {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 34rem) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

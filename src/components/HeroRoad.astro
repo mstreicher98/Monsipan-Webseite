@@ -1,0 +1,185 @@
+---
+// Asphaltband mit Markiermaschine: Die Maschine fährt von links nach rechts
+// und hinterlässt die Leitlinie. Reine CSS-Animation, kein JavaScript.
+---
+
+<div class="road-band" aria-hidden="true">
+  <div class="road-edge road-edge--top"></div>
+  <div class="road-center"><div class="road-center__paint"></div></div>
+  <div class="road-edge road-edge--bottom"></div>
+
+  <div class="truck-track">
+    <svg class="truck" viewBox="0 0 280 96" xmlns="http://www.w3.org/2000/svg">
+      <!-- Sprühnebel am Heck -->
+      <ellipse class="truck__mist" cx="8" cy="48" rx="12" ry="6" fill="#fff"></ellipse>
+      <!-- Markierausleger -->
+      <rect x="10" y="44" width="30" height="8" rx="2" fill="#9ea1a4"></rect>
+      <rect x="4" y="41" width="10" height="14" rx="2" fill="#6d7074"></rect>
+      <!-- Räder -->
+      <g fill="#15171a">
+        <rect x="58" y="4" width="26" height="8" rx="2"></rect>
+        <rect x="88" y="4" width="26" height="8" rx="2"></rect>
+        <rect x="58" y="84" width="26" height="8" rx="2"></rect>
+        <rect x="88" y="84" width="26" height="8" rx="2"></rect>
+        <rect x="216" y="6" width="24" height="8" rx="2"></rect>
+        <rect x="216" y="82" width="24" height="8" rx="2"></rect>
+      </g>
+      <!-- Aufbau -->
+      <rect x="38" y="10" width="168" height="76" rx="4" fill="#ffee02" stroke="#c9bc00" stroke-width="2"></rect>
+      <rect x="46" y="18" width="152" height="60" rx="2" fill="none" stroke="#e1d200" stroke-width="2"></rect>
+      <rect x="60" y="30" width="36" height="36" rx="18" fill="#f2f2f2" stroke="#c9c9c9" stroke-width="2"></rect>
+      <rect x="104" y="30" width="36" height="36" rx="18" fill="#f2f2f2" stroke="#c9c9c9" stroke-width="2"></rect>
+      <path d="M150 24h40l-8 48h-40z" fill="#e1d200"></path>
+      <!-- Führerhaus -->
+      <rect x="208" y="14" width="58" height="68" rx="12" fill="#ffee02" stroke="#c9bc00" stroke-width="2"></rect>
+      <rect x="252" y="20" width="10" height="56" rx="4" fill="#2a2d30" opacity="0.75"></rect>
+      <rect x="226" y="18" width="20" height="60" rx="3" fill="#f7ea00"></rect>
+      <!-- Spiegel und Warnleuchten -->
+      <rect x="244" y="4" width="6" height="10" rx="1" fill="#2a2d30"></rect>
+      <rect x="244" y="82" width="6" height="10" rx="1" fill="#2a2d30"></rect>
+      <rect class="truck__beacon" x="230" y="20" width="10" height="7" rx="2" fill="#f0661c"></rect>
+      <rect class="truck__beacon truck__beacon--b" x="230" y="69" width="10" height="7" rx="2" fill="#f0661c"></rect>
+    </svg>
+  </div>
+</div>
+
+<style>
+  .road-band {
+    --band-h: clamp(8.5rem, 17vw, 15rem);
+    --dur: 3.6s;
+    --delay: 0.55s;
+    --ease: cubic-bezier(0.55, 0.05, 0.35, 1);
+    position: relative;
+    height: var(--band-h);
+    overflow: hidden;
+    background-color: #33373b;
+    /* feine Asphaltkörnung, als SVG-Rauschen gekachelt */
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E"),
+      linear-gradient(180deg, rgba(0, 0, 0, 0.18), transparent 22%, transparent 78%, rgba(0, 0, 0, 0.22));
+  }
+
+  .road-edge {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: max(5px, calc(var(--band-h) * 0.04));
+    background: #eceae4;
+    opacity: 0.92;
+  }
+
+  .road-edge--top {
+    top: 11%;
+  }
+
+  .road-edge--bottom {
+    bottom: 11%;
+  }
+
+  .road-center {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: max(6px, calc(var(--band-h) * 0.05));
+    translate: 0 -50%;
+  }
+
+  .road-center__paint {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(90deg, #fff 0 clamp(3rem, 7vw, 6.5rem), transparent 0 clamp(6rem, 14vw, 13rem));
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.25);
+  }
+
+  .truck-track {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    translate: 110% 0;
+  }
+
+  .truck {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    height: calc(var(--band-h) * 0.5);
+    width: auto;
+    translate: calc(var(--band-h) * -0.015) -50%;
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .road-center {
+      animation: road-paint var(--dur) var(--ease) var(--delay) both;
+    }
+
+    .truck-track {
+      animation: truck-drive var(--dur) var(--ease) var(--delay) both;
+    }
+
+    .truck__mist {
+      animation: truck-mist 0.18s steps(2) 26 alternate;
+      transform-origin: 8px 48px;
+    }
+
+    .truck__beacon {
+      animation: truck-beacon 0.9s steps(1) 5;
+    }
+
+    .truck__beacon--b {
+      animation-delay: 0.45s;
+    }
+
+    /* nach dem Aufmalen: Linie wandert beim Scrollen wie beim Fahren */
+    @supports (animation-timeline: scroll()) {
+      .road-center__paint {
+        animation: road-roll linear both;
+        animation-timeline: scroll(root);
+        animation-range: 0 100vh;
+      }
+    }
+  }
+
+  @keyframes road-paint {
+    from {
+      clip-path: inset(0 115% 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  /* gleicher Verlauf wie "paint": das Heck der Maschine sitzt genau an der Malkante */
+  @keyframes truck-drive {
+    from {
+      translate: -15% 0;
+    }
+    to {
+      translate: 100% 0;
+    }
+  }
+
+  @keyframes truck-mist {
+    from {
+      opacity: 0.35;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 0.8;
+      transform: scale(1.15);
+    }
+  }
+
+  @keyframes truck-beacon {
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  @keyframes road-roll {
+    to {
+      background-position: -40vw 0;
+    }
+  }
+</style>

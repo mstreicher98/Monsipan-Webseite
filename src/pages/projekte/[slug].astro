@@ -1,0 +1,226 @@
+---
+import { getImage } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import Gallery from '../../components/Gallery.astro';
+import { leistungen, type Leistung } from '../../data/leistungen';
+import { galleryOf, projektImage } from '../../lib/images';
+
+export function getStaticPaths() {
+  return leistungen.map((l, i) => ({
+    params: { slug: l.slug },
+    props: { l, prev: leistungen[(i - 1 + leistungen.length) % leistungen.length], next: leistungen[(i + 1) % leistungen.length] },
+  }));
+}
+
+interface Props {
+  l: Leistung;
+  prev: Leistung;
+  next: Leistung;
+}
+const { l, prev, next } = Astro.props;
+const images = galleryOf(l.folder);
+const cover = projektImage(l.folder, l.cover);
+const poster = l.video ? await getImage({ src: projektImage(l.folder, l.video.poster), width: 1280, format: 'webp' }) : undefined;
+---
+
+<Base title={l.title} description={l.lead} image={cover}>
+  <PageHeader title={l.titleHyphen} lead={l.lead} crumb={{ href: '/projekte/', label: 'Alle Leistungen' }} />
+
+  <section class="section detail">
+    <div class="wrap detail__grid">
+      <div class="detail__text prose">
+        {l.body.map((p) => <p>{p}</p>)}
+        <a class="btn" href={`/kontakt/?thema=${encodeURIComponent(l.title)}#anfrage`}>Angebot anfragen</a>
+      </div>
+      <aside class="detail__points">
+        <h2 class="detail__h">Auf einen Blick</h2>
+        <ul role="list">
+          {l.points.map((p) => <li>{p}</li>)}
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  {
+    l.video && poster && (
+      <section class="wrap video" aria-label={l.video.label}>
+        <video
+          class="video__el"
+          controls
+          muted
+          playsinline
+          preload="none"
+          poster={poster.src}
+          data-autoplay
+        >
+          <source src={l.video.src} type="video/mp4" />
+        </video>
+      </section>
+    )
+  }
+
+  <section class="section" aria-labelledby="gal-h">
+    <div class="wrap">
+      <div class="gal-head">
+        <h2 id="gal-h" class="display h2">Projektbilder</h2>
+        <p class="muted">{images.length} Bilder aus unseren Projekten. Zum Vergrößern antippen.</p>
+      </div>
+      <Gallery images={images} label={l.title} />
+    </div>
+  </section>
+
+  <nav class="pager wrap" aria-label="Weitere Leistungen">
+    <a class="pager__link" href={`/projekte/${prev.slug}/`}>
+      <span class="pager__dir">Vorherige Leistung</span>
+      <span class="pager__title" set:html={prev.titleHyphen} />
+    </a>
+    <a class="pager__link pager__link--next" href={`/projekte/${next.slug}/`}>
+      <span class="pager__dir">Nächste Leistung</span>
+      <span class="pager__title" set:html={next.titleHyphen} />
+    </a>
+  </nav>
+</Base>
+
+<script>
+  // Video startet stumm, sobald es sichtbar ist, und pausiert außerhalb des Blickfelds
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll<HTMLVideoElement>('video[data-autoplay]').forEach((v) => {
+    if (reduce) return;
+    new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) v.play().catch(() => {});
+        else v.pause();
+      },
+      { threshold: 0.5 },
+    ).observe(v);
+  });
+</script>
+
+<style>
+  .detail {
+    padding-top: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .detail__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: clamp(2rem, 6vw, 6rem);
+    align-items: start;
+  }
+
+  .detail__text .btn {
+    margin-top: 1rem;
+  }
+
+  .detail__points {
+    border-top: 2px solid var(--ink);
+    padding-top: 1.25rem;
+  }
+
+  .detail__h {
+    font-size: var(--step-1);
+    margin-bottom: 1rem;
+  }
+
+  .detail__points ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .detail__points li {
+    position: relative;
+    padding: 0.75rem 0 0.7rem 1.75rem;
+    border-bottom: 1px solid var(--line);
+    font-weight: 600;
+  }
+
+  /* kurzer Markierungsstrich als Aufzählungszeichen */
+  .detail__points li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 1.3rem;
+    width: 1rem;
+    height: 5px;
+    background: var(--signal-deep);
+    transform: skewX(-20deg);
+  }
+
+  .video__el {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--asphalt);
+    object-fit: cover;
+  }
+
+  .gal-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: end;
+    gap: 1rem 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .gal-head p {
+    margin: 0;
+  }
+
+  .pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding-bottom: clamp(4rem, 8vw, 7rem);
+  }
+
+  .pager__link {
+    display: grid;
+    gap: 0.4rem;
+    padding: 1.5rem 0;
+    border-top: 2px solid var(--ink);
+    text-decoration: none;
+  }
+
+  .pager__link--next {
+    text-align: right;
+  }
+
+  .pager__dir {
+    color: var(--grey);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  .pager__title {
+    font-size: var(--step-2);
+    font-weight: 820;
+    font-style: italic;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .pager__link:hover .pager__title {
+    text-decoration: underline;
+    text-decoration-color: var(--signal-deep);
+    text-decoration-thickness: 4px;
+    text-underline-offset: 0.2em;
+  }
+
+  @media (max-width: 52rem) {
+    .detail__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 34rem) {
+    .pager {
+      grid-template-columns: 1fr;
+    }
+
+    .pager__link--next {
+      text-align: left;
+    }
+  }
+</style>

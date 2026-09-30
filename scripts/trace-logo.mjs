@@ -1,0 +1,14 @@
+import sharp from 'sharp';
+import potrace from 'potrace';
+import fs from 'fs';
+const src = process.argv[2];
+const { data, info } = await sharp(src).resize({ width: 3372 }).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+const { width: w, height: h } = info;
+const mk = (pred) => { const b = Buffer.alloc(w*h); for (let i=0;i<w*h;i++){const r=data[i*4],g=data[i*4+1],bl=data[i*4+2],a=data[i*4+3]; b[i]= a>100 && pred(r,g,bl) ? 0 : 255;} return sharp(b,{raw:{width:w,height:h,channels:1}}).png().toBuffer(); };
+const yellow = await mk((r,g,b)=> r>90 && g>90 && (Math.min(r,g)-b)>45);
+const grey = await mk((r,g,b)=> !( r>90 && g>90 && (Math.min(r,g)-b)>45) && (r+g+b)/3 < 215 && Math.max(r,g,b)-Math.min(r,g,b) < 45);
+const trace = (buf) => new Promise((res,rej)=>potrace.trace(buf,{turdSize:20,optTolerance:0.4,alphaMax:0.6},(e,svg)=>e?rej(e):res(svg.match(/ d="([^"]+)"/)[1])));
+const yd = await trace(yellow), gd = await trace(grey);
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="Monsipan"><path fill-rule="evenodd" fill="#8E9093" d="${gd}"/><path fill-rule="evenodd" fill="#FFEE02" d="${yd}"/></svg>`;
+fs.writeFileSync(process.argv[3], svg);
+console.log(w,h, svg.length);

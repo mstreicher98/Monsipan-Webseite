@@ -1,0 +1,19 @@
+services:
+  web:
+    build: .
+    image: monsipan-webseite:latest
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      # Empfänger und Absender der Kontaktanfragen
+      MAIL_TO: office@monsipan.com
+      MAIL_FROM: webseite@monsipan.at
+      MAIL_FROM_NAME: Webseite monsipan.at
+      RATE_LIMIT: 5
+      # SMTP-Zugang des E-Mail-Anbieters (Werte in .env eintragen, nicht hier)
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-tls}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}

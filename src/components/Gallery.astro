@@ -1,0 +1,293 @@
+---
+import { Picture, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  images: { name: string; img: ImageMetadata }[];
+  label: string;
+}
+const { images, label } = Astro.props;
+
+const items = await Promise.all(
+  images.map(async ({ img }, i) => {
+    const large = await getImage({ src: img, width: Math.min(1800, img.width), format: 'webp', quality: 80 });
+    const widths = [360, 560, 800].filter((w) => w < img.width);
+    return { img, large: large.src, widths: widths.length ? widths : [img.width], alt: `${label} – Bild ${i + 1} von ${images.length}` };
+  }),
+);
+---
+
+<div class="gallery" data-gallery>
+  <ul class="gallery__grid" role="list">
+    {
+      items.map((it, i) => (
+        <li>
+          <a class="gallery__item" href={it.large} data-index={i} data-large={it.large} aria-label={`${it.alt} vergrößern`}>
+            <Picture
+              src={it.img}
+              formats={['avif']} fallbackFormat="webp"
+              widths={it.widths}
+              width={it.widths[it.widths.length - 1]}
+              sizes="(min-width: 70rem) 25vw, (min-width: 40rem) 33vw, 50vw"
+              alt={it.alt}
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <dialog class="lb" aria-label={`${label} – Bildansicht`} data-lb>
+    <div class="lb__stage" data-lb-stage>
+      <img class="lb__img" alt="" data-lb-img />
+    </div>
+    <p class="lb__count" data-lb-count aria-live="polite"></p>
+    <button class="lb__btn lb__close" type="button" data-lb-close aria-label="Schließen">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19" stroke="currentColor" stroke-width="2.4" fill="none"></path></svg>
+    </button>
+    <button class="lb__btn lb__prev" type="button" data-lb-prev aria-label="Vorheriges Bild">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.4" fill="none"></path></svg>
+    </button>
+    <button class="lb__btn lb__next" type="button" data-lb-next aria-label="Nächstes Bild">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.4" fill="none"></path></svg>
+    </button>
+  </dialog>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((root) => {
+    const links = [...root.querySelectorAll<HTMLAnchorElement>('.gallery__item')];
+    const dialog = root.querySelector<HTMLDialogElement>('[data-lb]')!;
+    const img = root.querySelector<HTMLImageElement>('[data-lb-img]')!;
+    const count = root.querySelector<HTMLElement>('[data-lb-count]')!;
+    let index = 0;
+    let returnFocus: HTMLElement | null = null;
+
+    const show = (i: number, dir = 0) => {
+      index = (i + links.length) % links.length;
+      const link = links[index];
+      img.classList.remove('is-in');
+      img.style.setProperty('--from', `${dir * 3}rem`);
+      img.onload = () => requestAnimationFrame(() => img.classList.add('is-in'));
+      img.src = link.dataset.large!;
+      img.alt = link.querySelector('img')?.alt ?? '';
+      count.textContent = `${index + 1} / ${links.length}`;
+      // nächstes Bild vorladen
+      const next = new Image();
+      next.src = links[(index + 1) % links.length].dataset.large!;
+    };
+
+    links.forEach((link, i) =>
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        returnFocus = link;
+        show(i);
+        dialog.showModal();
+        document.documentElement.style.overflow = 'hidden';
+      }),
+    );
+
+    dialog.addEventListener('close', () => {
+      document.documentElement.style.overflow = '';
+      returnFocus?.focus();
+    });
+    root.querySelector('[data-lb-close]')!.addEventListener('click', () => dialog.close());
+    root.querySelector('[data-lb-prev]')!.addEventListener('click', () => show(index - 1, -1));
+    root.querySelector('[data-lb-next]')!.addEventListener('click', () => show(index + 1, 1));
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') show(index - 1, -1);
+      if (e.key === 'ArrowRight') show(index + 1, 1);
+    });
+    // Klick auf den dunklen Hintergrund schließt
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog || (e.target as HTMLElement).hasAttribute('data-lb-stage')) dialog.close();
+    });
+    // Wischen auf Touch-Geräten
+    let startX = 0;
+    dialog.addEventListener('touchstart', (e) => (startX = e.touches[0].clientX), { passive: true });
+    dialog.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 50) show(index + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+    });
+  });
+</script>
+
+<style>
+  .gallery__grid {
+    columns: 4 16rem;
+    column-gap: 0.75rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .gallery__grid li {
+    break-inside: avoid;
+    margin-bottom: 0.75rem;
+  }
+
+  .gallery__item {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    background: var(--concrete);
+    cursor: zoom-in;
+  }
+
+  .gallery__item :global(img) {
+    width: 100%;
+    height: auto;
+    transition:
+      transform 0.9s var(--ease-out),
+      filter 0.4s;
+  }
+
+  .gallery__item:hover :global(img) {
+    transform: scale(1.04);
+  }
+
+  .gallery__item::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 5px;
+    width: 100%;
+    background: var(--signal);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s var(--ease-out);
+  }
+
+  .gallery__item:hover::after,
+  .gallery__item:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  @media (max-width: 40rem) {
+    .gallery__grid {
+      columns: 2;
+      column-gap: 0.5rem;
+    }
+
+    .gallery__grid li {
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  /* Lightbox */
+  .lb {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: rgba(24, 26, 28, 0.96);
+    color: var(--white);
+    overscroll-behavior: contain;
+  }
+
+  .lb::backdrop {
+    background: rgba(24, 26, 28, 0.6);
+  }
+
+  .lb[open] {
+    animation: lb-in 0.3s var(--ease-out);
+  }
+
+  @keyframes lb-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .lb__stage {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 4rem clamp(0.5rem, 6vw, 6rem);
+  }
+
+  .lb__img {
+    max-width: 100%;
+    max-height: calc(100dvh - 8rem);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    opacity: 0;
+    transform: translateX(var(--from, 0));
+    transition:
+      opacity 0.35s var(--ease-out),
+      transform 0.5s var(--ease-out);
+  }
+
+  .lb__img.is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  .lb__count {
+    position: absolute;
+    left: 1.25rem;
+    top: 1rem;
+    margin: 0;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .lb__btn {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border: 0;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--white);
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .lb__btn:hover {
+    background: var(--signal);
+    color: var(--ink);
+  }
+
+  .lb__btn svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .lb__close {
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+
+  .lb__prev,
+  .lb__next {
+    top: 50%;
+    translate: 0 -50%;
+  }
+
+  .lb__prev {
+    left: 0.5rem;
+  }
+
+  .lb__next {
+    right: 0.5rem;
+  }
+
+  @media (max-width: 40rem) {
+    .lb__prev,
+    .lb__next {
+      top: auto;
+      bottom: 0.75rem;
+      translate: none;
+    }
+  }
+</style>

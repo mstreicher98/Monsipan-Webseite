@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+import HeroRoad from '../components/HeroRoad.astro';
+---
+
+<Base title="Seite nicht gefunden" noindex>
+  <section class="nf">
+    <div class="wrap">
+      <h1 class="display nf__title">Hier endet die Markierung.</h1>
+      <p class="lead">
+        Diese Seite gibt es nicht (mehr). Vielleicht hat sich die Adresse geändert – über die Startseite finden Sie schnell
+        wieder zurück.
+      </p>
+      <div class="nf__cta">
+        <a class="btn" href="/">Zur Startseite</a>
+        <a class="btn btn--ghost" href="/projekte/">Projekte ansehen</a>
+      </div>
+    </div>
+    <HeroRoad />
+  </section>
+</Base>
+
+<style>
+  .nf {
+    padding-top: clamp(3rem, 8vw, 7rem);
+  }
+
+  .nf__title {
+    font-size: var(--step-4);
+    max-width: 14ch;
+    margin-bottom: 1.5rem;
+  }
+
+  .nf__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+    align-items: center;
+    margin: 2rem 0 clamp(3rem, 6vw, 5rem);
+  }
+</style>

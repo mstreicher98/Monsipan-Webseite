@@ -1,0 +1,317 @@
+@import '@fontsource-variable/overpass/wght.css';
+@import '@fontsource-variable/overpass/wght-italic.css';
+
+:root {
+  --paper: #f7f8f7;
+  --white: #ffffff;
+  --concrete: #eceeec;
+  --line: #d6d9d7;
+  --asphalt: #2a2d30;
+  --asphalt-2: #3b3f43;
+  --ink: #1f2224;
+  --grey: #5f6265;
+  --logo-grey: #8e9093;
+  --signal: #ffee02;
+  --signal-deep: #e8d700;
+  --orange: #f0661c;
+
+  --font: 'Overpass Variable', 'Overpass', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --step--1: 0.875rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.25rem;
+  --step-2: clamp(1.4rem, 1.2rem + 0.8vw, 1.75rem);
+  --step-3: clamp(1.9rem, 1.4rem + 2.2vw, 3.1rem);
+  --step-4: clamp(2.4rem, 1.5rem + 4vw, 4.75rem);
+  --step-5: clamp(3.1rem, 1.2rem + 8.2vw, 9.5rem);
+
+  --gutter: clamp(1rem, 4vw, 3rem);
+  --max: 82rem;
+  --radius: 4px;
+  --slant: polygon(0.6em 0, 100% 0, calc(100% - 0.6em) 100%, 0 100%);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --header-h: 4.5rem;
+
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-h) + 1rem);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  font-weight: 400;
+  font-feature-settings: 'kern', 'liga';
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+img,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+p {
+  margin: 0 0 1em;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.display {
+  font-style: italic;
+  font-weight: 850;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+}
+
+h2.display,
+.h2 {
+  font-size: var(--step-4);
+}
+
+h3 {
+  font-size: var(--step-2);
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: var(--signal);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--signal);
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: clamp(4rem, 9vw, 8.5rem);
+}
+
+.section--tight {
+  padding-block: clamp(3rem, 6vw, 5rem);
+}
+
+.section--concrete {
+  background: var(--concrete);
+}
+
+.lead {
+  font-size: var(--step-1);
+  line-height: 1.55;
+  max-width: 38em;
+  color: var(--ink);
+}
+
+.muted {
+  color: var(--grey);
+}
+
+.prose {
+  max-width: 40em;
+}
+
+.prose h2 {
+  font-size: var(--step-2);
+  margin: 2.2em 0 0.6em;
+}
+
+.prose h3 {
+  font-size: var(--step-1);
+  margin: 1.6em 0 0.4em;
+}
+
+.prose ul {
+  padding-left: 1.2em;
+}
+
+.prose li + li {
+  margin-top: 0.3em;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 100;
+  background: var(--signal);
+  color: var(--ink);
+  padding: 0.6rem 1rem;
+  font-weight: 700;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* Buttons – Parallelogramm wie die Balken im Logo */
+.btn {
+  --bg: var(--signal);
+  --fg: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.95em 1.7em 0.85em;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-weight: 750;
+  font-size: var(--step-0);
+  line-height: 1.1;
+  text-decoration: none;
+  border: 0;
+  cursor: pointer;
+  clip-path: var(--slant);
+  transition:
+    background-color 0.2s,
+    transform 0.2s var(--ease-out);
+}
+
+.btn:hover {
+  --bg: var(--signal-deep);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:focus-visible {
+  clip-path: none;
+}
+
+.btn--dark {
+  --bg: var(--asphalt);
+  --fg: var(--white);
+}
+
+.btn--dark:hover {
+  --bg: var(--ink);
+}
+
+.btn--ghost {
+  --bg: transparent;
+  clip-path: none;
+  padding-inline: 0.2em;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.35em;
+}
+
+.btn--ghost:hover {
+  --bg: transparent;
+  text-decoration-color: var(--signal-deep);
+}
+
+.btn svg {
+  width: 1.1em;
+  height: 1.1em;
+  flex: none;
+}
+
+/* Leitlinie als Trenner: 3 m Strich, 6 m Lücke im Maßstab */
+.leitlinie {
+  height: 5px;
+  background: repeating-linear-gradient(90deg, var(--asphalt) 0 2.2rem, transparent 2.2rem 4.4rem);
+  border: 0;
+  margin: 0;
+}
+
+/* Reveal – nur wenn JS aktiv und Bewegung erlaubt */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translateY(1.25rem);
+    transition:
+      opacity 0.9s var(--ease-out),
+      transform 0.9s var(--ease-out);
+    transition-delay: var(--delay, 0s);
+  }
+
+  .js [data-reveal].is-in {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Seitenübergänge (native View Transitions, ohne JavaScript) */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.35s;
+  animation-timing-function: var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

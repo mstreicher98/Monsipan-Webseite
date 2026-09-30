@@ -1,0 +1,244 @@
+---
+import { Picture } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { team, tel } from '../data/team';
+import { teamImage } from '../lib/images';
+import { company } from '../data/site';
+import maschinen from '../assets/misc/team-1-scaled.webp';
+
+const groups = [
+  { key: 'buero', title: 'Geschäftsführung & Büro' },
+  { key: 'baustelle', title: 'Vorarbeiter auf der Baustelle' },
+] as const;
+---
+
+<Base
+  title="Team"
+  description="Das Team von Monsipan: Geschäftsführung, Büro und erfahrene Vorarbeiter für Bodenmarkierung und Beschichtung."
+  image={maschinen}
+>
+  <PageHeader
+    title="Das sind wir."
+    lead="Wir stellen Bodenmarkierungen und Beschichtungen ganz nach Ihren Wünschen her. Mit einem modern ausgerüsteten Maschinenpark und gut ausgebildeten Mitarbeiterinnen und Mitarbeitern liefern wir bestmögliche Qualität."
+  />
+
+  <section class="section">
+    <div class="wrap about">
+      <p class="lead">
+        Jede und jeder in unserem Team trägt zum gemeinsamen Erfolg bei – und damit auch zu Ihrem. Unsere erfahrenen
+        Fachkräfte bringen fundiertes technisches Know-how und neue Ideen in alle Bereiche der Bodenmarkierung ein.
+      </p>
+      <p class="muted">
+        Seit Jahren zählen Stadtgemeinden, Länder und private Auftraggeber zu unseren zufriedenen Kunden. Rufen Sie uns an
+        – Sie sprechen direkt mit den Menschen, die Ihr Projekt ausführen.
+      </p>
+    </div>
+
+    {
+      groups.map((g) => (
+        <div class="wrap group">
+          <h2 class="group__h">{g.title}</h2>
+          <ul class="people" role="list">
+            {team
+              .filter((p) => p.group === g.key)
+              .map((p) => (
+                <li class="person">
+                  <div class="person__photo">
+                    <Picture
+                      src={teamImage(p.photo)}
+                      formats={['avif']} fallbackFormat="webp"
+                      widths={[240, 400]} width={400}
+                      sizes="(min-width: 60rem) 18vw, 45vw"
+                      alt={`Porträt von ${p.name}`}
+                      loading="lazy"
+                    />
+                  </div>
+                  <h3 class="person__name">{p.name}</h3>
+                  <p class="person__role">{p.role}</p>
+                  {(p.phone || p.email) && (
+                    <p class="person__contact">
+                      {p.phone && <a href={tel(p.phone)}>{p.phone}</a>}
+                      {p.phone && p.email && <br />}
+                      {p.email && <a href={`mailto:${p.email}`}>{p.email}</a>}
+                    </p>
+                  )}
+                </li>
+              ))}
+          </ul>
+        </div>
+      ))
+    }
+  </section>
+
+  <section class="section section--concrete">
+    <div class="wrap equip">
+      <figure class="equip__photo">
+        <Picture
+          src={maschinen}
+          formats={['avif']} fallbackFormat="webp"
+          widths={[600, 1000, 1400]} width={1400}
+          sizes="(min-width: 60rem) 55vw, 100vw"
+          alt="Fräsen und Markiergeräte aus dem Maschinenpark von Monsipan vor der Halle"
+          loading="lazy"
+        />
+      </figure>
+      <div>
+        <h2 class="display h2">Markierungen weisen den Weg.</h2>
+        <p class="lead equip__lead">
+          Linien, Flächen, Schriften, Symbole, Ziffern und Buchstaben – in jeder Größe und Farbe.
+        </p>
+        <p>
+          Von handgeführten Maschinen für Parkplätze bis zu Großgeräten für Autobahnen sind wir für jedes Projekt gerüstet.
+          Verschiedene Fräsen für Demarkierungsarbeiten und leistungsstarke Turbinentrockner für Einsätze bei Schlechtwetter
+          gehören ebenfalls zu unserer Ausrüstung.
+        </p>
+        <a class="btn btn--dark" href="/projekte/">Zu unseren Projekten</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section join">
+    <div class="wrap join__inner">
+      <h2 class="display h2">Werden Sie Teil unseres Teams.</h2>
+      <div>
+        <p class="lead">
+          Möchten auch Sie mit uns immer einen Zentimeter voraus sein und für mehr Sicherheit auf den Straßen sorgen? Dann
+          freuen wir uns auf Ihre Bewerbung.
+        </p>
+        <a class="btn" href={`mailto:${company.email}?subject=Bewerbung`}>Bewerbung senden</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .about {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 5vw, 5rem);
+    align-items: start;
+    margin-bottom: clamp(3.5rem, 7vw, 6rem);
+  }
+
+  .group + .group {
+    margin-top: clamp(3rem, 6vw, 5rem);
+  }
+
+  .group__h {
+    font-size: var(--step-1);
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 1.75rem;
+  }
+
+  .people {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+    gap: 2rem 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .person__photo {
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--concrete);
+    margin-bottom: 1rem;
+  }
+
+  /* Fotos aus unterschiedlichen Quellen werden durch Graustufen vereinheitlicht */
+  .person__photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 20%;
+    filter: grayscale(1) contrast(1.05) brightness(1.03);
+    transition:
+      filter 0.6s var(--ease-out),
+      transform 0.9s var(--ease-out);
+  }
+
+  .person:hover .person__photo :global(img) {
+    filter: none;
+    transform: scale(1.03);
+  }
+
+  .person__name {
+    font-size: var(--step-1);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .person__role {
+    margin: 0.2rem 0 0.4rem;
+    color: var(--grey);
+  }
+
+  .person__contact {
+    font-size: var(--step--1);
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .person__contact a {
+    text-decoration: none;
+  }
+
+  .person__contact a:hover {
+    text-decoration: underline;
+  }
+
+  .equip {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: clamp(2rem, 6vw, 6rem);
+    align-items: center;
+  }
+
+  .equip__photo {
+    margin: 0;
+    clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+  }
+
+  .equip__photo :global(img) {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .equip__lead {
+    margin: 1.5rem 0 1rem;
+  }
+
+  .equip .btn {
+    margin-top: 0.5rem;
+  }
+
+  .join__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 2rem clamp(2rem, 6vw, 6rem);
+    align-items: end;
+  }
+
+  .join .lead {
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 60rem) {
+    .about,
+    .equip,
+    .join__inner {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .people {
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem 0.75rem;
+    }
+  }
+</style>

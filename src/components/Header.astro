@@ -1,0 +1,256 @@
+---
+import logo from '../assets/logo.svg?url';
+import { nav, company } from '../data/site';
+
+const path = Astro.url.pathname.replace(/\/?$/, '/');
+const isActive = (href: string) => path === href || (href !== '/' && path.startsWith(href));
+---
+
+<header class="site-header" data-header>
+  <div class="wrap site-header__inner">
+    <a class="brand" href="/" aria-label="Monsipan – zur Startseite">
+      <img src={logo} alt="Monsipan" width="168" height="30" />
+    </a>
+
+    <nav class="nav" aria-label="Hauptnavigation">
+      <ul id="menu" class="nav__list" data-menu>
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+        <li class="nav__phone-mobile">
+          <a href={company.phoneHref}>{company.phone}</a>
+        </li>
+      </ul>
+    </nav>
+
+    <a class="btn header-call" href={company.phoneHref}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"
+        ><path
+          fill="currentColor"
+          d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"
+        ></path></svg
+      >
+      <span>01 706 20 06</span>
+    </a>
+
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="menu" data-menu-toggle>
+      <span class="visually-hidden">Menü</span>
+      <span class="menu-toggle__bars" aria-hidden="true"></span>
+    </button>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--header-h);
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: saturate(1.4) blur(12px);
+    -webkit-backdrop-filter: saturate(1.4) blur(12px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s;
+  }
+
+  .site-header.is-scrolled {
+    border-bottom-color: var(--line);
+  }
+
+  .site-header__inner {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .brand {
+    flex: none;
+    margin-right: auto;
+  }
+
+  .brand img {
+    width: clamp(132px, 14vw, 168px);
+    height: auto;
+  }
+
+  .nav__list {
+    display: flex;
+    gap: clamp(1rem, 2.4vw, 2.2rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav__list a {
+    position: relative;
+    display: block;
+    padding: 0.4rem 0;
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  /* aktiver Punkt: eine kurze gelbe Markierung unter dem Wort */
+  .nav__list a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 4px;
+    background: var(--signal);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s var(--ease-out);
+  }
+
+  .nav__list a:hover::after,
+  .nav__list a[aria-current='page']::after {
+    transform: scaleX(1);
+  }
+
+  .nav__phone-mobile {
+    display: none;
+  }
+
+  .header-call {
+    padding: 0.7em 1.4em 0.6em;
+    font-size: var(--step--1);
+  }
+
+  .menu-toggle {
+    display: none;
+  }
+
+  @media (max-width: 52rem) {
+    .header-call span {
+      display: none;
+    }
+
+    .header-call {
+      padding: 0.75em 1.2em;
+    }
+
+    .site-header__inner {
+      gap: 0.75rem;
+    }
+
+    .menu-toggle {
+      display: grid;
+      place-items: center;
+      width: 2.75rem;
+      height: 2.75rem;
+      border: 0;
+      background: none;
+      cursor: pointer;
+      color: var(--ink);
+    }
+
+    .menu-toggle__bars,
+    .menu-toggle__bars::before,
+    .menu-toggle__bars::after {
+      display: block;
+      width: 1.5rem;
+      height: 2.5px;
+      background: currentColor;
+      transition: transform 0.35s var(--ease-out), opacity 0.2s;
+    }
+
+    .menu-toggle__bars {
+      position: relative;
+    }
+
+    .menu-toggle__bars::before,
+    .menu-toggle__bars::after {
+      content: '';
+      position: absolute;
+      left: 0;
+    }
+
+    .menu-toggle__bars::before {
+      top: -7px;
+    }
+
+    .menu-toggle__bars::after {
+      top: 7px;
+    }
+
+    .menu-toggle[aria-expanded='true'] .menu-toggle__bars {
+      background: transparent;
+    }
+
+    .menu-toggle[aria-expanded='true'] .menu-toggle__bars::before {
+      transform: translateY(7px) rotate(45deg);
+    }
+
+    .menu-toggle[aria-expanded='true'] .menu-toggle__bars::after {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+
+    .nav {
+      order: 3;
+    }
+
+    .nav__list {
+      position: fixed;
+      inset: var(--header-h) 0 auto 0;
+      height: calc(100dvh - var(--header-h));
+      flex-direction: column;
+      gap: 0;
+      padding: 1.5rem var(--gutter) 2rem;
+      background: var(--paper);
+      visibility: hidden;
+      opacity: 0;
+      transform: translateY(-0.75rem);
+      transition:
+        opacity 0.3s var(--ease-out),
+        transform 0.4s var(--ease-out),
+        visibility 0s 0.4s;
+    }
+
+    .nav__list.is-open {
+      visibility: visible;
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity 0.3s var(--ease-out),
+        transform 0.4s var(--ease-out);
+    }
+
+    .nav__list li {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav__list a {
+      padding: 1rem 0;
+      font-size: var(--step-3);
+      font-style: italic;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .nav__list a::after {
+      bottom: 0.9rem;
+      right: auto;
+      width: 3rem;
+    }
+
+    .nav__phone-mobile {
+      display: block;
+      border-bottom: 0 !important;
+      margin-top: 1rem;
+    }
+
+    .nav__phone-mobile a {
+      font-size: var(--step-1);
+      font-style: normal;
+      font-weight: 700;
+    }
+  }
+</style>

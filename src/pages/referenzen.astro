@@ -1,0 +1,170 @@
+---
+import { Picture } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { regionen } from '../data/referenzen';
+import { projektImage } from '../lib/images';
+import lkw from '../assets/misc/monsipan_lkw-scaled.webp';
+
+const bilder = [
+  { img: projektImage('laengsmarkierung', 'laengs_8.webp'), alt: 'Frisch markierte Autobahnauffahrt mit Sperrflächen' },
+  { img: projektImage('flaechenmarkierung', 'flaeche_14.webp'), alt: 'Rot markierte Radfahrerüberfahrt an einer Kreuzung' },
+  { img: projektImage('blindenleitsystem', 'blindenleitsystem_1.webp'), alt: 'Taktiles Leitsystem mit Aufmerksamkeitsfeld auf einem Vorplatz' },
+];
+---
+
+<Base
+  title="Referenzen"
+  description="Referenzen von Monsipan: Mehrjahresvertrag mit der Stadt Wien (MA 28), Landesaufträge in Niederösterreich und der Steiermark, ASFINAG-Aufträge sowie Gemeinden, Firmen und Private."
+  image={lkw}
+>
+  <PageHeader
+    title="Referenzen"
+    lead="Bodenmarkierungsarbeiten für Länder, Städte, die ASFINAG sowie zahlreiche Gemeinden, Firmen und Privatkunden – ein Auszug aus unseren Aufträgen."
+  />
+
+  <section class="section">
+    <div class="wrap regions">
+      {
+        regionen.map((r) => (
+          <article class="region" data-reveal>
+            <h2 class="region__name display">{r.name}</h2>
+            <div class="region__body">
+              <h3 class="region__headline">{r.headline}</h3>
+              <ul role="list">
+                {r.items.map((i) => (
+                  <li>{i}</li>
+                ))}
+              </ul>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="shots" aria-label="Beispiele aus Referenzprojekten">
+    <div class="wrap shots__grid">
+      {
+        bilder.map((b) => (
+          <Picture src={b.img} formats={['avif']} fallbackFormat="webp" widths={[400, 700, 1000]} width={1000} sizes="(min-width: 50rem) 33vw, 100vw" alt={b.alt} loading="lazy" />
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap cta">
+      <h2 class="display h2">Ihr Projekt als nächste Referenz?</h2>
+      <div>
+        <p class="lead">
+          Ob Ausschreibung, Rahmenvertrag oder einzelner Parkplatz: Wir erstellen Ihnen gerne ein Angebot.
+        </p>
+        <a class="btn" href="/kontakt/#anfrage">Angebot anfragen</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .regions {
+    display: grid;
+  }
+
+  .region {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    gap: 1rem clamp(2rem, 6vw, 6rem);
+    padding-block: clamp(2rem, 4vw, 3.25rem);
+    border-top: 2px solid var(--ink);
+  }
+
+  .region:last-child {
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .region__name {
+    font-size: var(--step-4);
+    hyphens: manual;
+  }
+
+  .region__headline {
+    font-size: var(--step-2);
+    margin-bottom: 1rem;
+  }
+
+  .region ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .region li {
+    position: relative;
+    padding: 0.55rem 0 0.5rem 1.75rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .region li:last-child {
+    border-bottom: 0;
+  }
+
+  .region li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 1.1rem;
+    width: 1rem;
+    height: 5px;
+    background: var(--signal-deep);
+    transform: skewX(-20deg);
+  }
+
+  .shots__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+
+  .shots__grid :global(img) {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .shots__grid :global(picture:nth-child(2) img) {
+    aspect-ratio: 4 / 3.6;
+    margin-top: -1.5rem;
+  }
+
+  .cta {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 2rem clamp(2rem, 6vw, 6rem);
+    align-items: end;
+  }
+
+  .cta .lead {
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 52rem) {
+    .region,
+    .cta {
+      grid-template-columns: 1fr;
+    }
+
+    .shots__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .shots__grid :global(picture:nth-child(3)) {
+      display: none;
+    }
+
+    .shots__grid :global(picture:nth-child(2) img) {
+      margin-top: 0;
+      aspect-ratio: 4 / 3;
+    }
+  }
+</style>

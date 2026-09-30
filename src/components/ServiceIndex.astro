@@ -1,0 +1,213 @@
+---
+import { Picture } from 'astro:assets';
+import { leistungen } from '../data/leistungen';
+import { projektImage } from '../lib/images';
+---
+
+<div class="svc" data-svc>
+  <ol class="svc__list" role="list">
+    {
+      leistungen.map((l, i) => (
+        <li>
+          <a class="svc__row" href={`/projekte/${l.slug}/`} data-svc-item={i}>
+            <span class="svc__thumb"><Picture
+              src={projektImage(l.folder, l.cover)}
+              formats={['avif']} fallbackFormat="webp"
+              widths={[160, 320]} width={320}
+              sizes="160px"
+              alt=""
+              loading="lazy"
+            /></span>
+            <span class="svc__text">
+              <span class="svc__title" set:html={l.titleHyphen} />
+              <span class="svc__short">{l.short}</span>
+            </span>
+            <svg class="svc__arrow" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" />
+            </svg>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+
+  <div class="svc__stage" aria-hidden="true">
+    {
+      leistungen.map((l, i) => (
+        <Picture
+          class:list={['svc__img', { 'is-active': i === 0 }]}
+          data-svc-img={i}
+          src={projektImage(l.folder, l.cover)}
+          formats={['avif']} fallbackFormat="webp"
+          widths={[560, 900, 1200]} width={1200}
+          sizes="(min-width: 64rem) 38vw, 1px"
+          alt=""
+          loading="lazy"
+        />
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-svc]').forEach((root) => {
+    const imgs = root.querySelectorAll<HTMLElement>('[data-svc-img]');
+    const show = (i: string | undefined) => {
+      imgs.forEach((img) => img.classList.toggle('is-active', img.dataset.svcImg === i));
+    };
+    root.querySelectorAll<HTMLElement>('[data-svc-item]').forEach((row) => {
+      row.addEventListener('pointerenter', () => show(row.dataset.svcItem));
+      row.addEventListener('focus', () => show(row.dataset.svcItem));
+    });
+  });
+</script>
+
+<style>
+  .svc {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: start;
+  }
+
+  .svc__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 2px solid var(--ink);
+  }
+
+  .svc__list li {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .svc__row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.4rem 0 1.25rem;
+    text-decoration: none;
+  }
+
+  /* gelbe Markierung wächst beim Überfahren von links herein */
+  .svc__row::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    height: 4px;
+    width: 100%;
+    background: var(--signal);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.6s var(--ease-out);
+  }
+
+  .svc__row:hover::before,
+  .svc__row:focus-visible::before {
+    transform: scaleX(1);
+  }
+
+  .svc__thumb {
+    display: none;
+  }
+
+  .svc__text {
+    display: grid;
+    gap: 0.3rem;
+  }
+
+  .svc__title {
+    font-size: var(--step-3);
+    font-weight: 820;
+    font-style: italic;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    transition: transform 0.5s var(--ease-out);
+  }
+
+  .svc__row:hover .svc__title {
+    transform: translateX(0.5rem);
+  }
+
+  .svc__short {
+    color: var(--grey);
+    max-width: 34em;
+  }
+
+  .svc__arrow {
+    width: 1.75rem;
+    height: 1.75rem;
+    transition: transform 0.4s var(--ease-out);
+  }
+
+  .svc__row:hover .svc__arrow {
+    transform: translateX(0.35rem);
+  }
+
+  .svc__stage {
+    position: sticky;
+    top: calc(var(--header-h) + 2rem);
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--concrete);
+    clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+  }
+
+  .svc__stage :global(picture),
+  .svc__stage :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .svc__stage :global(.svc__img) {
+    opacity: 0;
+    transform: scale(1.06);
+    transition:
+      opacity 0.6s var(--ease-out),
+      transform 1.2s var(--ease-out);
+  }
+
+  .svc__stage :global(.svc__img.is-active) {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (max-width: 64rem) {
+    .svc {
+      grid-template-columns: 1fr;
+    }
+
+    .svc__stage {
+      display: none;
+    }
+
+    .svc__row {
+      grid-template-columns: 5rem 1fr auto;
+      gap: 1rem;
+    }
+
+    .svc__thumb {
+      display: block;
+    }
+
+    .svc__thumb :global(img) {
+      width: 5rem;
+      height: 5rem;
+      object-fit: cover;
+    }
+
+    .svc__title {
+      font-size: var(--step-2);
+    }
+
+    .svc__short {
+      font-size: var(--step--1);
+    }
+  }
+</style>

@@ -1,0 +1,96 @@
+---
+import { Picture } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import ContactSection from '../components/ContactSection.astro';
+import { team, tel } from '../data/team';
+import { teamImage } from '../lib/images';
+
+const contacts = team.filter((p) => p.group === 'buero');
+---
+
+<Base
+  title="Kontakt"
+  description="Kontakt zu Monsipan Bautenschutz in Schwechat: Telefon +43 1 706 20 06, office@monsipan.com, Himberger Straße 76. Anfrage für Bodenmarkierung und Beschichtung senden."
+>
+  <ContactSection
+    as="h1"
+    heading="Kontakt"
+    intro="Bodenmarkierungen schaffen Sicherheit. Sie haben Fragen, Wünsche oder ein konkretes Projekt? Schreiben Sie uns – wir melden uns rasch mit einer Antwort oder einem Angebot."
+  />
+
+  <section class="section section--concrete" aria-labelledby="ap-h">
+    <div class="wrap">
+      <h2 id="ap-h" class="display h2 ap__h">Ihre Ansprechpartner</h2>
+      <ul class="ap" role="list">
+        {
+          contacts.map((p) => (
+            <li class="ap__item">
+              <Picture src={teamImage(p.photo)} formats={['avif']} fallbackFormat="webp" widths={[160, 320]} width={320} sizes="7rem" alt={`Porträt von ${p.name}`} loading="lazy" />
+              <div>
+                <h3 class="ap__name">{p.name}</h3>
+                <p class="ap__role">{p.role}</p>
+                {p.phone && <a href={tel(p.phone)}>{p.phone}</a>}
+                {p.email && (
+                  <>
+                    <br />
+                    <a href={`mailto:${p.email}`}>{p.email}</a>
+                  </>
+                )}
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .ap__h {
+    margin-bottom: 2.5rem;
+  }
+
+  .ap {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .ap__item {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: 1.25rem;
+    align-items: center;
+    font-weight: 600;
+    font-size: var(--step--1);
+  }
+
+  .ap__item :global(img) {
+    width: 6.5rem;
+    height: 8rem;
+    object-fit: cover;
+    object-position: 50% 20%;
+    filter: grayscale(1) contrast(1.05);
+  }
+
+  .ap__item a {
+    text-decoration: none;
+  }
+
+  .ap__item a:hover {
+    text-decoration: underline;
+  }
+
+  .ap__name {
+    font-size: var(--step-1);
+  }
+
+  .ap__role {
+    margin: 0.15rem 0 0.4rem;
+    color: var(--grey);
+    font-weight: 400;
+  }
+</style>

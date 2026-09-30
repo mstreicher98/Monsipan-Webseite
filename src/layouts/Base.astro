@@ -1,0 +1,96 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { company } from '../data/site';
+import ogDefault from '../assets/misc/monsipan_lkw-scaled.webp';
+import { getImage } from 'astro:assets';
+import fontNormal from '@fontsource-variable/overpass/files/overpass-latin-wght-normal.woff2?url';
+import fontItalic from '@fontsource-variable/overpass/files/overpass-latin-wght-italic.woff2?url';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: ImageMetadata;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = 'Monsipan Bautenschutz aus Schwechat: Bodenmarkierungen und Beschichtungen für Autobahnen, Gemeinden, Industrie und private Flächen – seit 1980.',
+  image = ogDefault,
+  noindex = false,
+} = Astro.props;
+
+const fullTitle = title ? `${title} | Monsipan Bautenschutz` : 'Monsipan Bautenschutz – Bodenmarkierungen seit 1980';
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const og = await getImage({ src: image, width: 1200, height: 630, fit: 'cover', format: 'jpeg', quality: 78 });
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'HomeAndConstructionBusiness',
+  name: company.legalName,
+  alternateName: company.name,
+  url: Astro.site?.href,
+  logo: new URL('/favicon.svg', Astro.site).href,
+  image: new URL(og.src, Astro.site).href,
+  telephone: company.phone,
+  faxNumber: company.fax,
+  email: company.email,
+  foundingDate: String(company.founded),
+  vatID: company.uid,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: company.street,
+    postalCode: company.zip,
+    addressLocality: company.city,
+    addressCountry: 'AT',
+  },
+  openingHoursSpecification: [
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], opens: '07:30', closes: '17:00' },
+  ],
+  areaServed: ['Wien', 'Niederösterreich', 'Steiermark'],
+};
+---
+
+<!doctype html>
+<html lang="de-AT">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <link rel="preload" href={fontNormal} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={fontItalic} as="font" type="font/woff2" crossorigin />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content="#f7f8f7" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="de_AT" />
+    <meta property="og:site_name" content="Monsipan Bautenschutz" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL(og.src, Astro.site)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
+    <Header />
+    <main id="inhalt">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import '../scripts/site';
+    </script>
+  </body>
+</html>

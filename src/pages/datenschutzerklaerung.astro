@@ -1,0 +1,110 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { company } from '../data/site';
+---
+
+<Base title="Datenschutzerklärung" description="Informationen zur Verarbeitung personenbezogener Daten auf monsipan.at gemäß DSGVO.">
+  <PageHeader title="Datenschutz&shy;erklärung" />
+
+  <section class="section">
+    <div class="wrap prose">
+      <p class="lead">
+        Der Schutz Ihrer Daten ist uns wichtig. Diese Webseite kommt ohne Tracking, ohne Analyse-Werkzeuge und ohne Cookies
+        aus. Im Folgenden informieren wir Sie, welche Daten dennoch verarbeitet werden und welche Rechte Sie haben.
+      </p>
+
+      <h2>Verantwortlicher</h2>
+      <p>
+        {company.legalName}<br />
+        {company.street}, {company.zip} {company.city}, {company.country}<br />
+        Telefon: <a href={company.phoneHref}>{company.phone}</a><br />
+        E-Mail: <a href={`mailto:${company.email}`}>{company.email}</a><br />
+        Vertreten durch den Geschäftsführer {company.ceo}
+      </p>
+
+      <h2>Aufruf der Webseite und Server-Logfiles</h2>
+      <p>
+        Beim Aufruf dieser Webseite übermittelt Ihr Browser technisch notwendige Informationen an unseren Webserver: IP-Adresse,
+        Datum und Uhrzeit des Zugriffs, aufgerufene Seite, übertragene Datenmenge, Referrer sowie Browser und Betriebssystem.
+        Diese Daten werden in Server-Logfiles gespeichert, um den sicheren und stabilen Betrieb der Webseite zu gewährleisten
+        und Angriffe abwehren zu können.
+      </p>
+      <p>
+        Rechtsgrundlage ist unser berechtigtes Interesse an einem sicheren Betrieb (Art. 6 Abs. 1 lit. f DSGVO). Die Logfiles
+        werden nach spätestens 14 Tagen gelöscht, sofern sie nicht zur Aufklärung eines konkreten Sicherheitsvorfalls benötigt
+        werden. Die Webseite wird bei einem Hosting-Anbieter betrieben, der die Daten ausschließlich in unserem Auftrag
+        verarbeitet (Art. 28 DSGVO).
+      </p>
+
+      <h2>Schriftarten</h2>
+      <p>
+        Die auf dieser Webseite verwendete Schrift wird direkt von unserem Server geladen. Es findet keine Verbindung zu
+        externen Schriftdiensten wie Google Fonts statt.
+      </p>
+
+      <h2>Kontaktformular und Kontakt per E-Mail oder Telefon</h2>
+      <p>
+        Wenn Sie uns über das Kontaktformular, per E-Mail oder telefonisch kontaktieren, verarbeiten wir die von Ihnen
+        angegebenen Daten (Name, E-Mail-Adresse, optional Firma und Telefonnummer sowie Ihre Nachricht), um Ihre Anfrage zu
+        beantworten und gegebenenfalls ein Angebot zu erstellen.
+      </p>
+      <p>
+        Rechtsgrundlage ist die Durchführung vorvertraglicher Maßnahmen (Art. 6 Abs. 1 lit. b DSGVO) bzw. unser berechtigtes
+        Interesse an der Beantwortung von Anfragen (Art. 6 Abs. 1 lit. f DSGVO). Die Formulardaten werden per verschlüsselter
+        E-Mail an uns übermittelt und nicht in einer Datenbank auf dem Webserver gespeichert. Zum Schutz vor Missbrauch wird die
+        IP-Adresse für höchstens eine Stunde gespeichert, um wiederholte Massenanfragen zu verhindern.
+      </p>
+      <p>
+        Wir speichern Ihre Anfrage so lange, wie es für die Bearbeitung erforderlich ist. Kommt ein Vertrag zustande, gelten
+        die gesetzlichen Aufbewahrungsfristen (insbesondere sieben Jahre gemäß § 132 BAO).
+      </p>
+
+      <h2 id="google-maps">Google Maps</h2>
+      <p>
+        Auf unserer Webseite können Sie eine Karte von Google Maps einblenden. Anbieter ist die Google Ireland Limited, Gordon
+        House, Barrow Street, Dublin 4, Irland. Die Karte wird erst geladen, wenn Sie auf „Karte laden“ klicken. Erst dann
+        werden Daten wie Ihre IP-Adresse an Google übertragen; dabei kann es auch zu einer Übermittlung an die Google LLC in
+        den USA kommen. Google ist nach dem EU-US Data Privacy Framework zertifiziert.
+      </p>
+      <p>
+        Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 lit. a DSGVO), die Sie mit dem Klick erteilen. Wenn Sie
+        „Karten künftig automatisch laden“ wählen, speichern wir diese Entscheidung im lokalen Speicher Ihres Browsers
+        (localStorage). Sie können die Einwilligung jederzeit widerrufen, indem Sie die Webseitendaten in Ihrem Browser
+        löschen. Weitere Informationen finden Sie in der
+        <a href="https://policies.google.com/privacy?hl=de" rel="noopener">Datenschutzerklärung von Google</a>.
+      </p>
+
+      <h2>Cookies und Analyse</h2>
+      <p>
+        Wir setzen keine Cookies und keine Analyse- oder Marketing-Werkzeuge ein. Nach dem Laden von Google Maps kann Google
+        eigene Cookies setzen; darauf haben wir keinen Einfluss.
+      </p>
+
+      <h2>Ihre Rechte</h2>
+      <p>Ihnen stehen grundsätzlich folgende Rechte zu:</p>
+      <ul>
+        <li>Auskunft über Ihre gespeicherten Daten (Art. 15 DSGVO)</li>
+        <li>Berichtigung unrichtiger Daten (Art. 16 DSGVO)</li>
+        <li>Löschung (Art. 17 DSGVO) und Einschränkung der Verarbeitung (Art. 18 DSGVO)</li>
+        <li>Datenübertragbarkeit (Art. 20 DSGVO)</li>
+        <li>Widerspruch gegen die Verarbeitung (Art. 21 DSGVO)</li>
+        <li>Widerruf einer erteilten Einwilligung mit Wirkung für die Zukunft (Art. 7 Abs. 3 DSGVO)</li>
+      </ul>
+      <p>
+        Wenden Sie sich dazu bitte an <a href={`mailto:${company.email}`}>{company.email}</a>. Wenn Sie der Ansicht sind,
+        dass die Verarbeitung Ihrer Daten gegen das Datenschutzrecht verstößt, können Sie sich bei der Aufsichtsbehörde
+        beschweren. In Österreich ist das die Datenschutzbehörde, Barichgasse 40–42, 1030 Wien,
+        <a href="https://www.dsb.gv.at" rel="noopener">www.dsb.gv.at</a>.
+      </p>
+
+      <h2>Datensicherheit</h2>
+      <p>
+        Diese Webseite wird ausschließlich über eine verschlüsselte Verbindung (HTTPS) ausgeliefert. Sie erkennen das am
+        Schloss-Symbol in der Adresszeile Ihres Browsers.
+      </p>
+
+      <p class="muted">Stand: {new Date().toLocaleDateString('de-AT', { month: 'long', year: 'numeric' })}</p>
+    </div>
+  </section>
+</Base>

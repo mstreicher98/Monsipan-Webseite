@@ -1,0 +1,99 @@
+---
+interface Props {
+  title: string;
+  lead?: string;
+  crumb?: { href: string; label: string };
+}
+const { title, lead, crumb } = Astro.props;
+---
+
+<header class="ph">
+  <div class="wrap">
+    {
+      crumb && (
+        <a class="ph__crumb" href={crumb.href}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 12H5m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" />
+          </svg>
+          {crumb.label}
+        </a>
+      )
+    }
+    <h1 class="display ph__title" set:html={title} />
+    {lead && <p class="lead ph__lead">{lead}</p>}
+    <slot />
+  </div>
+  <div class="ph__line" aria-hidden="true"></div>
+</header>
+
+<style>
+  .ph {
+    padding-top: clamp(2.5rem, 6vw, 5.5rem);
+  }
+
+  .ph__crumb {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 1.25rem;
+    font-weight: 650;
+    font-size: var(--step--1);
+    text-decoration: none;
+    color: var(--grey);
+  }
+
+  .ph__crumb:hover {
+    color: var(--ink);
+  }
+
+  .ph__crumb svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  .ph__title {
+    font-size: var(--step-4);
+    max-width: 16ch;
+  }
+
+  .ph__lead {
+    margin-top: 1.5rem;
+  }
+
+  /* Leitlinie, die beim Laden aufgemalt wird */
+  .ph__line {
+    height: 6px;
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    background: repeating-linear-gradient(90deg, var(--asphalt) 0 3rem, transparent 3rem 5rem);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ph__line {
+      animation: paint-line 1.6s var(--ease-out) 0.2s both;
+    }
+
+    .ph__title {
+      animation: ph-in 0.9s var(--ease-out) both;
+    }
+
+    .ph__lead {
+      animation: ph-in 0.9s var(--ease-out) 0.1s both;
+    }
+  }
+
+  @keyframes paint-line {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  @keyframes ph-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.9rem);
+    }
+  }
+</style>
